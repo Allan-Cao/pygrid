@@ -1,0 +1,20 @@
+query GetAvailableGames($gameType: SeriesType, $numOfGames: Int) {
+    allSeries(
+        filter: { type: $gameType }
+        first: $numOfGames
+        after: null
+        before: null
+        orderDirection: DESC
+    ) {
+        edges {
+            node {
+                id
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+        }
+        totalCount
+    }
+}

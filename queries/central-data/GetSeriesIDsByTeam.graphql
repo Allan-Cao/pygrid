@@ -1,0 +1,50 @@
+query GetSeriesIdsByTeam(
+    $teams: [ID!]
+    $gameTypes: [SeriesType!]
+    $tournaments: [ID!]
+    $after: Cursor
+    $order: OrderDirection
+    $gte: String!
+) {
+    allSeries(
+        filter: {
+            teamIds: { in: $teams }
+            types: $gameTypes
+            tournamentIds: { in: $tournaments }
+            startTimeScheduled: { gte: $gte }
+        }
+        orderBy: StartTimeScheduled
+        orderDirection: $order
+        after: $after
+    ) {
+        totalCount
+        edges {
+            node {
+                id
+                type
+                tournament {
+                    id
+                    endDate
+                    logoUrl
+                    name
+                    nameShortened
+                    startDate
+                }
+                teams {
+                    baseInfo {
+                        id
+                        name
+                        nameShortened
+                    }
+                }
+                startTimeScheduled
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+        }
+    }
+}

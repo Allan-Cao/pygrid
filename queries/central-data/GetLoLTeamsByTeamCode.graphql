@@ -1,0 +1,27 @@
+query GetLolTeamsByTeamCode($teamCode: String) {
+    teams(
+        filter: { nameShortened: { contains: $teamCode }, titleId: "3" }
+    ) {
+        totalCount
+        edges {
+            cursor
+            node {
+                id
+                colorPrimary
+                colorSecondary
+                logoUrl
+                name
+                nameShortened
+                externalLinks {
+                    externalEntity {
+                        id
+                    }
+                    dataProvider {
+                        description
+                        name
+                    }
+                }
+            }
+        }
+    }
+}

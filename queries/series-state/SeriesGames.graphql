@@ -1,0 +1,10 @@
+query SeriesGames($seriesID: ID!) {
+    seriesState(id: $seriesID) {
+        id
+        finished
+        valid
+        games {
+            id
+        }
+    }
+}

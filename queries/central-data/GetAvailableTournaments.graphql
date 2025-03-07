@@ -1,0 +1,33 @@
+query GetAvailableTournaments($after: Cursor, $first: Int) {
+    tournaments(
+        after: $after
+        first: $first
+        filter: { hasChildren: { equals: false } }
+    ) {
+        edges {
+            node {
+                id
+                name
+                startDate
+                endDate
+                nameShortened
+                logoUrl
+                externalLinks {
+                    dataProvider {
+                        description
+                        name
+                    }
+                    externalEntity {
+                        id
+                    }
+                }
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+        }
+    }
+}

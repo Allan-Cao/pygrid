@@ -1,0 +1,30 @@
+query GetAvailableTeams($after: Cursor, $first: Int) {
+    teams(after: $after, first: $first) {
+        totalCount
+        edges {
+            node {
+                id
+                colorPrimary
+                colorSecondary
+                logoUrl
+                name
+                nameShortened
+                externalLinks {
+                    externalEntity {
+                        id
+                    }
+                    dataProvider {
+                        description
+                        name
+                    }
+                }
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+        }
+    }
+}

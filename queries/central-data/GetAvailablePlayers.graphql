@@ -1,0 +1,28 @@
+query GetAvailablePlayers($after: Cursor, $first: Int) {
+    players(after: $after, first: $first) {
+        edges {
+            node {
+                id
+                nickname
+                externalLinks {
+                    dataProvider {
+                        name
+                    }
+                    externalEntity {
+                        id
+                    }
+                }
+                team {
+                    id
+                }
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+        }
+        totalCount
+    }
+}

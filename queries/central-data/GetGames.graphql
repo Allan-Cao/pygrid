@@ -1,0 +1,19 @@
+query GetGames($gameType: SeriesType, $numOfGames: Int, $afterCursor: Cursor, $teams: [ID!]) {
+    allSeries(
+        filter: { type: $gameType, teamIds: { in: $teams }}
+        first: $numOfGames
+        after: $afterCursor
+        orderDirection: DESC
+    ) {
+        edges {
+            node {
+                id
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+        }
+        totalCount
+    }
+}
