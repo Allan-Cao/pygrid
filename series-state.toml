@@ -1,0 +1,7 @@
+[tool.ariadne-codegen]
+remote_schema_url = "https://api.grid.gg/live-data-feed/series-state/graphql"
+queries_path = "queries/series-state"
+target_package_name = "series_state"
+target_package_path = "GRID"
+remote_schema_headers = { "x-api-key" = "$GRID_API_KEY" }
+async_client = false

@@ -1,0 +1,6 @@
+[tool.ariadne-codegen]
+remote_schema_url = "https://api.grid.gg/central-data/graphql"
+queries_path = "queries/central-data"
+target_package_name = "central_data"
+target_package_path = "GRID"
+async_client = false

@@ -1,0 +1,10 @@
+# CORE
+ariadne-codegen
+requests
+
+# Required for Parser
+orjsonl
+
+# Optional (scripts)
+tqdm
+arrow
