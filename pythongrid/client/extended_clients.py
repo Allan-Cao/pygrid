@@ -7,14 +7,18 @@ from typing import Any, Dict
 from ..central_data import Client as CentralDataClient
 from ..series_state import Client as SeriesStateClient
 
+
 class RateLimitMixin:
     """
     Mixin class that allows us to access the original response and apply rate limiting.
 
     We override the get_data method to access the original HTTP response.
     """
+
     def __init__(self, *args, **kwargs):
-        self.rate_limit_headers = set(["x-ratelimit-limit", "x-ratelimit-remaining", "x-ratelimit-reset"])
+        self.rate_limit_headers = set(
+            ["x-ratelimit-limit", "x-ratelimit-remaining", "x-ratelimit-reset"]
+        )
         self.buffer_ratio = 0.1
         self.default_wait = 1.0
         self.lock = threading.Lock()
@@ -24,7 +28,7 @@ class RateLimitMixin:
     def get_data(self, response: httpx.Response) -> Dict[str, Any]:
         """
         Override the get_data method in the generated clients to apply a rate limit.
-        
+
         Args:
             response: The HTTP response from the GraphQL request
         """
@@ -39,7 +43,7 @@ class RateLimitMixin:
                 limit = int(headers["x-ratelimit-limit"])
                 remaining = int(headers["x-ratelimit-remaining"])
                 reset_seconds = int(headers["x-ratelimit-reset"])
-                
+
                 buffer_threshold = max(1, int(limit * self.buffer_ratio))
 
                 if remaining <= buffer_threshold:
@@ -52,12 +56,14 @@ class RateLimitMixin:
                     # Cap sleep time to avoid excessive waits
                     sleep_time = min(sleep_time, reset_seconds / 2)
                     time.sleep(sleep_time)
-        
+
         return data
+
 
 # Extended Base Clients
 class ExtendedCentralDataClient(RateLimitMixin, CentralDataClient):
     pass
+
 
 class ExtendedSeriesStateClient(RateLimitMixin, SeriesStateClient):
     pass

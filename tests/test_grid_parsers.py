@@ -1,6 +1,7 @@
 import pytest
 from pythongrid.pipeline import parse_tournament_name
 
+
 @pytest.mark.parametrize(
     "tournament_name,expected_result",
     [

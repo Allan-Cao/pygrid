@@ -1,8 +1,14 @@
 import httpx
 import orjson
 
-from .constants import SHARED_LIVE_STATS_EVENT_KEYS, DRAFT_TURNS_BLUE, DRAFT_TURNS_RED, NAME_ID_MAP
+from .constants import (
+    SHARED_LIVE_STATS_EVENT_KEYS,
+    DRAFT_TURNS_BLUE,
+    DRAFT_TURNS_RED,
+    NAME_ID_MAP,
+)
 from typing import List
+
 
 def process_live_stats(live_stats_input: str | httpx.stream):
     """Data transformation from riot live stats file or HTTPX stream to riot live stats jsonl

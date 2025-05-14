@@ -1,4 +1,5 @@
 from .champions import get_champion_mappings
+
 ID_NAME_MAP, NAME_ID_MAP = get_champion_mappings()
 
 # These are the dictionary keys that all live stats events share. We need to remove them.

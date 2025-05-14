@@ -1,5 +1,6 @@
 import re
 
+
 def parse_tournament_name(tournament: str):
     """
     Parse tournament names with formats:
@@ -15,7 +16,7 @@ def parse_tournament_name(tournament: str):
     year = None
     split = None
     event_type = None
-    
+
     # Handle bracketed event type
     if "(" in tournament:
         main_part = tournament.split("(")[0].strip()
@@ -24,18 +25,18 @@ def parse_tournament_name(tournament: str):
             event_type = event_part.group(1).strip()
     else:
         main_part = tournament
-    
+
     # Extract year
     year_match = re.search(r"20\d{2}", main_part)
     if year_match:
         year = year_match.group(0)
-        
+
         # Handle dash format
         if " - " in main_part:
             parts = main_part.split(" - ", 1)
             if len(parts) > 0:
                 league = parts[0].strip() or None
-            
+
             if len(parts) > 1:
                 rest = parts[1]
                 split_match = re.search(r"(\w+)\s+" + year, rest)
@@ -47,7 +48,7 @@ def parse_tournament_name(tournament: str):
                 league = parts[0].strip() or None
             if len(parts) > 1:
                 split = parts[1].strip() or None
-    
+
     return (league, year, split, event_type)
 
 
@@ -70,9 +71,7 @@ def tournament_from_grid(tournament_data):
             else tournament_data.logo_url
         )
 
-    league, year, split, event_type = parse_tournament_name(
-        tournament_data.name
-    )
+    league, year, split, event_type = parse_tournament_name(tournament_data.name)
 
     external_ids = {}
     if hasattr(tournament_data, "external_links"):
