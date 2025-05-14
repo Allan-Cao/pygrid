@@ -1,48 +1,46 @@
-# GRID-ingest
-Simple Python GRID API and associated scripts.
+# pythongrid
+Simple Python based client for the GRID esports API with a collection of data pipeline functions to support processing of game data.
 
-## TODO
-- Add my scripts that parses returned data files ideally in a database agnositic format. As I don't expect this library to become that popular, my main focus will be on compatability with my own [ATG](https://github.com/Allan-Cao/ATG) database format.
-- Release unit tested parsing functions.
-- Properly rate limit usage (sorry GRID that was me doing an accidental query burst the other day).
+## Features / TODO
+- [x] Rate limited access to GRID GraphQL endpoints
+- [x] Simple client class to access commonly used queries.
+- [x] Automatic pagination for queries that require multiple API calls
+- [ ] Release my scripts that parse returned data files ideally in a database agnositic format. As I don't expect this library to become that popular, my main focus will be on compatability with my own [ATG](https://github.com/Allan-Cao/ATG) database format.
+- [ ] Complete unit testing coverage of all parsing functions.
 
-## Usage
+## Example Usage
 
-Example setup
+Client API key setup
 
 ```python
-from GRID.central_data.enums import SeriesType, OrderDirection
-from GRID.central_data.client import Client as CentralDataClient
-from GRID.series_state.client import Client as SeriesStateClient
+import os
+from pythongrid.client import GridClient
 
-central_data_client = CentralDataClient("https://api.grid.gg/central-data/graphql", {"x-api-key": GRID_API_KEY})
-series_state_client = SeriesStateClient("https://api.grid.gg/live-data-feed/series-state/graphql", {"x-api-key": GRID_API_KEY})
+client = GridClient(os.environ["GRID_API_KEY"])
 ```
 
-Example usage to get all tournaments (naive rate limit)
+Lookup series information with filtering
 ```python
-def get_available_tournaments(central_data_client, rate_limit: int = 3) -> list:
-    tournaments = []
-    after = None
-    has_next_page = True
-
-    while has_next_page:
-        time.sleep(rate_limit)
-        temp_tournaments = central_data_client.get_available_tournaments(after, 50)
-        tournaments.extend(temp_tournaments.tournaments.edges)
-        has_next_page = temp_tournaments.tournaments.page_info.has_next_page
-        after = temp_tournaments.tournaments.page_info.end_cursor
-    return tournaments
+from pythongrid import OrderDirection, SeriesType
+gte = "2025-01-01T00:00:00.000Z"
+tournaments = ["825437", "825439", "825438", "825440", "825441"]
+available_series = client.get_all_matches(
+    order=OrderDirection.DESC,
+    title_ids = [3], # LoL
+    gte = gte, # Earliest series time
+    tournaments = tournaments,
+)
 ```
 
-## Generating code with Ariadne Codegen
-Ariadne Codegen lets us translate raw GraphQL queries into a usable Python library with support for type checking.
+## Generating API code with Ariadne Codegen
+Ariadne Codegen lets us translate raw GraphQL queries into a Python library as well as bringing GraphQL's type safety to Python
 
-First, you'll need to set the environment variable
+You'll need to set your GRID API key to be able to access the central data GraphQL API
 ```bash
 export GRID_API_KEY=YOUR_KEY_HERE
 ```
 
+To regenerate the GraphQL Client code use the following commands
 ```bash
 ariadne-codegen --config central-data.toml
 ariadne-codegen --config series-state.toml

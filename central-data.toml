@@ -2,5 +2,5 @@
 remote_schema_url = "https://api.grid.gg/central-data/graphql"
 queries_path = "queries/central-data"
 target_package_name = "central_data"
-target_package_path = "GRID"
+target_package_path = "pythongrid"
 async_client = false

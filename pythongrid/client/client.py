@@ -1,0 +1,199 @@
+from typing import List, Any, Callable
+import httpx
+
+from ..central_data.enums import OrderDirection
+from .extended_clients import (
+    ExtendedCentralDataClient as CentralDataClient,
+    ExtendedSeriesStateClient as SeriesStateClient,
+)
+
+class GridClient:
+    """Wrapper for GRID API clients with rate limiting."""
+
+    def __init__(self, api_key: str):
+        """
+        Initialize GRID API clients.
+
+        Args:
+            api_key: GRID API key
+        """
+        self.api_key = api_key
+        self.http_client = httpx.Client(headers = {"x-api-key": api_key})
+        self.central_data_client = CentralDataClient(
+            http_client = self.http_client,
+            url = "https://api.grid.gg/central-data/graphql",
+        )
+        self.series_state_client = SeriesStateClient(
+            http_client = self.http_client,
+            url = "https://api.grid.gg/live-data-feed/series-state/graphql",
+        )
+    
+    def _paginate_all(self, fetch_func: Callable, extract_path: str, page_size: int | None = 50, **kwargs) -> List[Any]:
+        all_items = []
+        after = None
+        has_next_page = True
+
+        while has_next_page:
+            if page_size is None:
+                result = fetch_func(after=after, **kwargs)
+            else:
+                result = fetch_func(after, page_size, **kwargs)
+            result = getattr(result, extract_path)
+            all_items.extend(result.edges)
+            has_next_page = result.page_info.has_next_page
+            after = result.page_info.end_cursor
+        
+        return all_items
+    
+    def get_all_teams(self) -> List[Any]:
+        """
+        Get all available teams.
+
+        Returns:
+            List of team edges
+        """
+        return self._paginate_all(self.central_data_client.get_available_teams, "teams")
+
+    def get_all_players(self) -> List[Any]:
+        """
+        Get all available players.
+
+        Returns:
+            List of player edges
+        """
+        return self._paginate_all(self.central_data_client.get_available_players, "players")
+
+    def get_all_tournaments(self) -> List[Any]:
+        """
+        Get all available tournaments.
+
+        Returns:
+            List of tournament edges
+        """
+        return self._paginate_all(self.central_data_client.get_available_tournaments, "tournaments")
+
+    def get_all_matches(
+        self,
+        order: OrderDirection = OrderDirection.DESC,
+        **kwargs,
+    ) -> List[Any]:
+        """
+        Look up played matches.
+
+        Args:
+            **kwargs: Additional parameters for get_series
+
+        Returns:
+            List of series edges
+        """
+        return self._paginate_all(self.central_data_client.get_series, "all_series", None, order=order, **kwargs)
+
+    def get_series_draft_summary(self, series_id: str) -> Any:
+        """
+        Fetch series draft summary details.
+
+        Args:
+            series_id: Series ID
+
+        Returns:
+            Series draft summary
+        """
+        result = self.series_state_client.series_draft_summary(series_id)
+        return result
+
+    def get_series_games(self, series_id: str) -> Any:
+        """
+        Fetch series games details.
+
+        Args:
+            series_id: Series ID
+
+        Returns:
+            Series games details
+        """
+        result = self.series_state_client.series_games(series_id)
+        return result
+
+    def get_team_by_team_code(self, team_code: str) -> str | None:
+        """
+        Look up team ID by team code.
+
+        Args:
+            team_code: Team code
+
+        Returns:
+            Team ID if found and unique, otherwise None
+        """
+        available_teams = self.central_data_client.get_lol_teams_by_team_code(
+            team_code
+        )
+
+        if available_teams.teams.total_count == 1:
+            return available_teams.teams.edges[0].node.id
+        return None
+
+    def get_available_files(self, series_id: str) -> httpx.Response:
+        """
+        Get list of available files for a specific series.
+
+        Args:
+            series_id: Series ID
+
+        Returns:
+            Response object with list of available files
+        """
+        headers = {"x-api-key": self.api_key, "Accept": "application/json"}
+        response = self.http_client.get(
+            f"https://api.grid.gg/file-download/list/{series_id}",
+            headers=headers,
+        )
+        return response
+    
+    def get_file(self, file_url: str) -> httpx.stream:
+        """
+        Get any URL from GRID
+
+        Args:
+            file_url: Download URL
+
+        Returns:
+            httpx.stream
+        """
+        response = self.http_client.stream("GET", file_url)
+        return response
+
+    def get_grid_summary(self, series_id: str, game_number: int) -> httpx.Response:
+        """
+        Get the Riot summary for a specific game in a series.
+
+        Args:
+            series_id: Series ID
+            game_number: Game number within the series
+
+        Returns:
+            Response object with Riot summary data
+        """
+        headers = {"x-api-key": self.api_key, "Accept": "application/json"}
+        response = self.http_client.get(
+            f"https://api.grid.gg/file-download/end-state/riot/series/{series_id}/games/{game_number}/summary",
+            headers=headers,
+        )
+        return response
+
+    def get_tencent_summary(self, series_id: str, game_number: int) -> httpx.Response:
+        """
+        Get the Tencent summary for a specific game in a series.
+
+        Args:
+            series_id: Series ID
+            game_number: Game number within the series
+
+        Returns:
+            Response object with Tencent summary data
+        """
+        headers = {"x-api-key": self.api_key, "Accept": "application/json"}
+        response = self.http_client.get(
+            f"https://api.grid.gg/file-download/end-state/tencent/series/{series_id}/games/{game_number}",
+            headers=headers,
+        )
+        return response
