@@ -10,8 +10,8 @@ from .constants import (
 from typing import List
 
 
-def process_live_stats(live_stats_input: str | httpx.stream):
-    """Data transformation from riot live stats file or HTTPX stream to riot live stats jsonl
+def process_live_stats(live_stats_input: str | httpx.Response):
+    """Data transformation from riot live stats file or httpx stream to riot live stats jsonl
 
     Args:
         live_stats_input (str | httpx.stream): Input file or httpx Reponse object to download series
