@@ -43,8 +43,8 @@ export GRID_API_KEY=YOUR_KEY_HERE
 
 To regenerate the GraphQL Client code use the following commands
 ```bash
-ariadne-codegen --config central-data.toml
-ariadne-codegen --config series-state.toml
+ariadne-codegen client --config central-data.toml
+ariadne-codegen client --config series-state.toml
 ```
 
 ## License
