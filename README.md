@@ -5,6 +5,7 @@ Simple Python based client for the GRID esports API with a collection of data pi
 - [x] Rate limited access to GRID GraphQL endpoints
 - [x] Simple client class to access commonly used queries.
 - [x] Automatic pagination for queries that require multiple API calls
+- [x] Minimal external dependencies; only httpx, orjson for the client and ariadne-codegen for GraphQL API code generation.
 - [ ] Release my scripts that parse returned data files ideally in a database agnositic format. As I don't expect this library to become that popular, my main focus will be on compatability with my own [ATG](https://github.com/Allan-Cao/ATG) database format.
 - [ ] Complete unit testing coverage of all parsing functions.
 
@@ -14,7 +15,7 @@ Client API key setup
 
 ```python
 import os
-from pythongrid.client import GridClient
+from pythongrid.zclient import GridClient
 
 client = GridClient(os.environ["GRID_API_KEY"])
 ```
