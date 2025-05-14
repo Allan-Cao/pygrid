@@ -8,6 +8,13 @@ Simple Python based client for the GRID esports API with a collection of data pi
 - [x] Minimal external dependencies; only httpx, orjson for the client and ariadne-codegen for GraphQL API code generation.
 - [ ] Release my scripts that parse returned data files ideally in a database agnositic format. As I don't expect this library to become that popular, my main focus will be on compatability with my own [ATG](https://github.com/Allan-Cao/ATG) database format.
 - [ ] Complete unit testing coverage of all parsing functions.
+- [ ] Release on PyPi for easier installation
+
+## Installation
+
+```bash
+pip install git+https://github.com/Allan-Cao/pythongrid
+```
 
 ## Example Usage
 
