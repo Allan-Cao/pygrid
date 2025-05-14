@@ -15,7 +15,7 @@ Client API key setup
 
 ```python
 import os
-from pythongrid.zclient import GridClient
+from pythongrid.client import GridClient
 
 client = GridClient(os.environ["GRID_API_KEY"])
 ```
@@ -32,6 +32,9 @@ available_series = client.get_all_matches(
     tournaments = tournaments,
 )
 ```
+Example Series:
+
+> GetSeriesAllSeriesEdges(node=GetSeriesAllSeriesEdgesNode(id='2780287', type=<SeriesType.ESPORTS: 'ESPORTS'>, format=GetSeriesAllSeriesEdgesNodeFormat(id='4', name='best-of-5', name_shortened='Bo5'), external_links=[GetSeriesAllSeriesEdgesNodeExternalLinks(data_provider=GetSeriesAllSeriesEdgesNodeExternalLinksDataProvider(description='Riot Esports API', name='LOL'), external_entity=GetSeriesAllSeriesEdgesNodeExternalLinksExternalEntity(id='114058320676724257'))], tournament=GetSeriesAllSeriesEdgesNodeTournament(id='825441', end_date=None, logo_url='https://cdn.grid.gg/assets/tournament-logos/generic', name='NACL - Spring 2025 (Playoffs: Playoffs)', name_shortened='Playoffs', start_date=None), teams=[GetSeriesAllSeriesEdgesNodeTeams(base_info=GetSeriesAllSeriesEdgesNodeTeamsBaseInfo(id='48610', color_primary='#5b6f7e', color_secondary='#ffffff', external_links=[], logo_url='https://cdn.grid.gg/assets/team-logos/389822452c3763a1fca49f66bbab781c', name_shortened=None, name='TBD-1')), GetSeriesAllSeriesEdgesNodeTeams(base_info=GetSeriesAllSeriesEdgesNodeTeamsBaseInfo(id='48611', color_primary='#5b6f7e', color_secondary='#ffffff', external_links=[], logo_url='https://cdn.grid.gg/assets/team-logos/5dd850a9a2c427406c4e68b4c458ec33', name_shortened=None, name='TBD-2'))], start_time_scheduled='2025-06-06T21:00:00Z'))
 
 ## Generating API code with Ariadne Codegen
 Ariadne Codegen lets us translate raw GraphQL queries into a Python library as well as bringing GraphQL's type safety to Python
