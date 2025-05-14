@@ -7,6 +7,7 @@ from .extended_clients import (
     ExtendedSeriesStateClient as SeriesStateClient,
 )
 
+
 class GridClient:
     """Wrapper for GRID API clients with rate limiting."""
 
@@ -18,17 +19,23 @@ class GridClient:
             api_key: GRID API key
         """
         self.api_key = api_key
-        self.http_client = httpx.Client(headers = {"x-api-key": api_key})
+        self.http_client = httpx.Client(headers={"x-api-key": api_key})
         self.central_data_client = CentralDataClient(
-            http_client = self.http_client,
-            url = "https://api.grid.gg/central-data/graphql",
+            http_client=self.http_client,
+            url="https://api.grid.gg/central-data/graphql",
         )
         self.series_state_client = SeriesStateClient(
-            http_client = self.http_client,
-            url = "https://api.grid.gg/live-data-feed/series-state/graphql",
+            http_client=self.http_client,
+            url="https://api.grid.gg/live-data-feed/series-state/graphql",
         )
-    
-    def _paginate_all(self, fetch_func: Callable, extract_path: str, page_size: int | None = 50, **kwargs) -> List[Any]:
+
+    def _paginate_all(
+        self,
+        fetch_func: Callable,
+        extract_path: str,
+        page_size: int | None = 50,
+        **kwargs,
+    ) -> List[Any]:
         all_items = []
         after = None
         has_next_page = True
@@ -42,9 +49,9 @@ class GridClient:
             all_items.extend(result.edges)
             has_next_page = result.page_info.has_next_page
             after = result.page_info.end_cursor
-        
+
         return all_items
-    
+
     def get_all_teams(self) -> List[Any]:
         """
         Get all available teams.
@@ -61,7 +68,9 @@ class GridClient:
         Returns:
             List of player edges
         """
-        return self._paginate_all(self.central_data_client.get_available_players, "players")
+        return self._paginate_all(
+            self.central_data_client.get_available_players, "players"
+        )
 
     def get_all_tournaments(self) -> List[Any]:
         """
@@ -70,7 +79,9 @@ class GridClient:
         Returns:
             List of tournament edges
         """
-        return self._paginate_all(self.central_data_client.get_available_tournaments, "tournaments")
+        return self._paginate_all(
+            self.central_data_client.get_available_tournaments, "tournaments"
+        )
 
     def get_all_matches(
         self,
@@ -86,7 +97,13 @@ class GridClient:
         Returns:
             List of series edges
         """
-        return self._paginate_all(self.central_data_client.get_series, "all_series", None, order=order, **kwargs)
+        return self._paginate_all(
+            self.central_data_client.get_series,
+            "all_series",
+            None,
+            order=order,
+            **kwargs,
+        )
 
     def get_series_draft_summary(self, series_id: str) -> Any:
         """
@@ -124,9 +141,7 @@ class GridClient:
         Returns:
             Team ID if found and unique, otherwise None
         """
-        available_teams = self.central_data_client.get_lol_teams_by_team_code(
-            team_code
-        )
+        available_teams = self.central_data_client.get_lol_teams_by_team_code(team_code)
 
         if available_teams.teams.total_count == 1:
             return available_teams.teams.edges[0].node.id
@@ -142,43 +157,98 @@ class GridClient:
         Returns:
             Response object with list of available files
         """
-        headers = {"x-api-key": self.api_key, "Accept": "application/json"}
-        response = self.http_client.get(
-            f"https://api.grid.gg/file-download/list/{series_id}",
-            headers=headers,
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/list/{series_id}"
         )
-        return response
-    
-    def get_file(self, file_url: str) -> httpx.stream:
-        """
-        Get any URL from GRID
 
-        Args:
-            file_url: Download URL
-
-        Returns:
-            httpx.stream
+    def get_riot_summary(self, series_id: str, game_number: int) -> httpx.Response:
         """
-        response = self.http_client.stream("GET", file_url)
-        return response
-
-    def get_grid_summary(self, series_id: str, game_number: int) -> httpx.Response:
-        """
-        Get the Riot summary for a specific game in a series.
+        Get the Riot summary for a specific game in a series. The format very similar to the Match-v5 summary API.
 
         Args:
             series_id: Series ID
             game_number: Game number within the series
 
         Returns:
-            Response object with Riot summary data
+            Response object with Riot "summary" data
         """
-        headers = {"x-api-key": self.api_key, "Accept": "application/json"}
-        response = self.http_client.get(
-            f"https://api.grid.gg/file-download/end-state/riot/series/{series_id}/games/{game_number}/summary",
-            headers=headers,
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/end-state/riot/series/{series_id}/games/{game_number}/summary"
         )
-        return response
+
+    def get_riot_details(self, series_id: str, game_number: int) -> httpx.Response:
+        """
+        Get the Riot detail for a specific game in a series. The format is somewhat close to the Match-v5 timeline.
+
+        Args:
+            series_id: Series ID
+            game_number: Game number within the series
+
+        Returns:
+            Response object with Riot "details" data
+        """
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/end-state/riot/series/{series_id}/games/{game_number}/details"
+        )
+
+    def get_riot_replay(self, series_id: str, game_number: int) -> httpx.Response:
+        """
+        Get a raw replay (.rofl) file for a game
+
+        Args:
+            series_id: Series ID
+            game_number: Game number within the series
+
+        Returns:
+            Response object with the raw replay data.
+        """
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/replay/riot/series/{series_id}/games/{game_number}"
+        )
+
+    def get_riot_live_stats(self, series_id: str, game_number: int) -> httpx.stream:
+        """
+        Get the Riot LiveStats (.jsonl) file for a game. Since this file is very large, an httpx.stream is returned.
+
+        Args:
+            series_id: Series ID
+            game_number: Game number within the series
+
+        Returns:
+            Response object with the raw replay data.
+        """
+        return self.http_client.stream(
+            "GET",
+            f"https://api.grid.gg/file-download/events/riot/series/{series_id}/games/{game_number}",
+        )
+
+    def get_grid_events(self, series_id: str) -> httpx.Response:
+        """
+        Get the GRID game-agnostic formated events for all games in a series
+
+        Args:
+            series_id: Series ID
+
+        Returns:
+            Response object with the GRID events
+        """
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/events/grid/series/{series_id}"
+        )
+
+    def get_grid_end_state(self, series_id: str) -> httpx.Response:
+        """
+        Get the GRID game-agnostic end-state summary for all games in a series
+
+        Args:
+            series_id: Series ID
+
+        Returns:
+            Response object with the GRID end-state
+        """
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/end-state/grid/series/{series_id}"
+        )
 
     def get_tencent_summary(self, series_id: str, game_number: int) -> httpx.Response:
         """
@@ -191,9 +261,6 @@ class GridClient:
         Returns:
             Response object with Tencent summary data
         """
-        headers = {"x-api-key": self.api_key, "Accept": "application/json"}
-        response = self.http_client.get(
-            f"https://api.grid.gg/file-download/end-state/tencent/series/{series_id}/games/{game_number}",
-            headers=headers,
+        return self.http_client.get(
+            f"https://api.grid.gg/file-download/end-state/tencent/series/{series_id}/games/{game_number}"
         )
-        return response

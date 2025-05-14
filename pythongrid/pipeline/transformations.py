@@ -4,11 +4,11 @@ import orjson
 from .constants import SHARED_LIVE_STATS_EVENT_KEYS, DRAFT_TURNS_BLUE, DRAFT_TURNS_RED, NAME_ID_MAP
 from typing import List
 
-def process_live_stats(live_stats_input: str | httpx.Response):
-    """Data transformation from riot live stats file or HTTPX response to riot live stats jsonl
+def process_live_stats(live_stats_input: str | httpx.stream):
+    """Data transformation from riot live stats file or HTTPX stream to riot live stats jsonl
 
     Args:
-        live_stats_input (str | Response): Input file or httpx Reponse object to download series
+        live_stats_input (str | httpx.stream): Input file or httpx Reponse object to download series
 
     Returns:
         game_participant_info (dict): game_info event
