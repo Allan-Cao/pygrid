@@ -110,6 +110,7 @@ class CreateContentCatalogVersionInput(BaseModel):
 
 class CreatePlayerInput(BaseModel):
     external_links: List["ExternalLinkInput"] = Field(alias="externalLinks")
+    image_data: Optional[str] = Field(alias="imageData", default=None)
     nickname: str
     private: Optional[bool] = None
     role: List["CreatePlayerPlayerRoleInput"]
@@ -463,6 +464,7 @@ class UpdatePlayerInput(BaseModel):
         alias="externalLinks", default=None
     )
     id: str
+    image_data: Optional[str] = Field(alias="imageData", default=None)
     nickname: Optional[str] = None
     private: Optional[bool] = None
     role: Optional[List["UpdatePlayerPlayerRoleInput"]] = None

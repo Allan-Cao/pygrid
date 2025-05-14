@@ -3,7 +3,7 @@ query GetSeries(
     $gameTypes: [SeriesType!]
     $tournaments: [ID!]
     $after: Cursor
-    $order: OrderDirection
+    $order: OrderDirection!
     $gte: String
     $lte: String
     $live: SeriesLiveFilter
@@ -33,6 +33,20 @@ query GetSeries(
             node {
                 id
                 type
+                format {
+                    id
+                    name
+                    nameShortened
+                }
+                externalLinks {
+                    dataProvider {
+                        description
+                        name
+                    }
+                    externalEntity {
+                        id
+                    }
+                }
                 tournament {
                     id
                     endDate
