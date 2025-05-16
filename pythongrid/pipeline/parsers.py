@@ -1,5 +1,5 @@
 import re
-
+import arrow
 
 def parse_tournament_name(tournament: str):
     """
@@ -97,3 +97,19 @@ def tournament_from_grid(tournament_data):
     }
 
     return tournament_details
+
+def parse_series_format(series_format: str) -> int | None:
+    name_split = series_format.split("best-of-")
+    if len(name_split) != 2:
+        return None
+    return int(name_split[1])
+        
+def series_from_grid(series_data) -> dict:
+    return {
+        "id": series_data.node.id,
+        "type": series_data.node.type.name,
+        "scheduled_start_time": arrow.get(series_data.node.start_time_scheduled).datetime,
+        "tournament_id": int(series_data.node.tournament.id),
+        "format": parse_series_format(series_data.node.format.name),
+        "external_links": {_.data_provider.name: _.external_entity.id for _ in series_data.node.external_links},
+    }

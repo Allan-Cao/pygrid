@@ -1,5 +1,5 @@
 import pytest
-from pythongrid.pipeline import parse_tournament_name
+from pythongrid.pipeline import parse_tournament_name, parse_series_format
 
 
 @pytest.mark.parametrize(
@@ -26,3 +26,15 @@ from pythongrid.pipeline import parse_tournament_name
 )
 def test_parse_tournament_name(tournament_name, expected_result):
     assert parse_tournament_name(tournament_name) == expected_result
+
+@pytest.mark.parametrize(
+    "series_format,expected_result",
+    [
+        ("best-of-1", 1),
+        ("best-of-5", 5),
+        ("other format", None),
+    ]
+)
+
+def test_parse_series_format(series_format, expected_result):
+    assert parse_series_format(series_format) == expected_result

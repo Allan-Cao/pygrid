@@ -2,11 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythongrid",
-    version="0.1.0.0",
+    version="0.1.1.0",
     packages=find_packages(),
     install_requires=[
         "httpx",
         "orjson",
+        "arrow",
     ],
     author="Allan Cao",
     author_email="allan@allancao.ca",

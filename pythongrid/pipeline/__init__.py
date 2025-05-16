@@ -5,7 +5,7 @@ from .constants import (
     NAME_ID_MAP,
     ID_NAME_MAP,
 )
-from .parsers import parse_tournament_name, tournament_from_grid
+from .parsers import parse_tournament_name, tournament_from_grid, parse_series_format, series_from_grid
 from .transformations import process_live_stats, process_event, process_pick_bans
 
 __all__ = [
