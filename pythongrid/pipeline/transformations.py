@@ -134,7 +134,7 @@ def process_pick_bans(
         pick_bans.append(
             {
                 "game_id": game_id,
-                "champion": blue,
+                "champion_id": blue,
                 "participant_id": P_MAP[blue],
                 "is_pick": True,
                 "is_phase_one": is_phase_one,
@@ -145,7 +145,7 @@ def process_pick_bans(
         pick_bans.append(
             {
                 "game_id": game_id,
-                "champion": red,
+                "champion_id": red,
                 "participant_id": P_MAP[red],
                 "is_pick": True,
                 "is_phase_one": is_phase_one,
@@ -158,7 +158,7 @@ def process_pick_bans(
         pick_bans.append(
             {
                 "game_id": game_id,
-                "champion": ban["championID"],
+                "champion_id": ban["championID"],
                 "participant_id": None,
                 "is_pick": False,
                 "is_phase_one": idx < 6,
