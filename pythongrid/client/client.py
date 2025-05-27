@@ -1,5 +1,6 @@
 from typing import List, Any, Callable
 import httpx
+from tqdm import tqdm
 
 from ..central_data.enums import OrderDirection
 from .extended_clients import (
@@ -39,6 +40,7 @@ class GridClient:
         all_items = []
         after = None
         has_next_page = True
+        pbar = None
 
         while has_next_page:
             if page_size is None:
@@ -47,9 +49,13 @@ class GridClient:
                 result = fetch_func(after, page_size, **kwargs)
             result = getattr(result, extract_path)
             all_items.extend(result.edges)
+            if pbar is None:
+                pbar = tqdm(total = result.total_count)
+            pbar.update(len(result.edges))
             has_next_page = result.page_info.has_next_page
             after = result.page_info.end_cursor
-
+        if pbar is not None:
+            pbar.close()
         return all_items
 
     def get_all_teams(self) -> List[Any]:
@@ -105,22 +111,27 @@ class GridClient:
             **kwargs,
         )
 
-    def get_series_draft_summary(self, series_id: str) -> Any:
+    def get_series_state(self, series_id: str, game_finished: bool | None = None, game_started: bool | None = None) -> Any:
         """
-        Fetch series draft summary details.
+        Fetch the indepth stats of all games played a series including
+            - Stats for all players stats
+            - Objective stats
+            - Game drafts determined by GRID
 
         Args:
             series_id: Series ID
+            game_finished: Optional boolean to filter by games that have a winner
+            game_started: Optional boolean to filter by games that have been started
 
         Returns:
             Series draft summary
         """
-        result = self.series_state_client.series_draft_summary(series_id)
+        result = self.series_state_client.series_state(series_id, game_finished=game_finished, game_started=game_started)
         return result
 
     def get_series_games(self, series_id: str) -> Any:
         """
-        Fetch series games details.
+        Fetch the game IDs of all available games in a series
 
         Args:
             series_id: Series ID

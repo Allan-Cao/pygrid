@@ -4,6 +4,7 @@ query GetAvailableTournaments($after: Cursor, $first: Int) {
         first: $first
         filter: { hasChildren: { equals: false } }
     ) {
+        totalCount
         edges {
             node {
                 id

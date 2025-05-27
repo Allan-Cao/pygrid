@@ -13,6 +13,7 @@ class GetAvailableTournaments(BaseModel):
 
 
 class GetAvailableTournamentsTournaments(BaseModel):
+    total_count: int = Field(alias="totalCount")
     edges: List["GetAvailableTournamentsTournamentsEdges"]
     page_info: "GetAvailableTournamentsTournamentsPageInfo" = Field(alias="pageInfo")
 

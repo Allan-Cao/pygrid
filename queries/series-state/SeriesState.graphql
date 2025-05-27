@@ -1,0 +1,135 @@
+query SeriesState($seriesID: ID!, $gameFinished: Boolean, $gameStarted: Boolean) {
+    seriesState(id: $seriesID) {
+        version
+        id
+        format
+        started
+        finished
+        valid
+        updatedAt
+        startedAt
+        teams {
+            id
+            name
+            score
+            won
+        }
+        games(filter: { finished: $gameFinished, started: $gameStarted }) {
+            id
+            sequenceNumber
+            type
+            started
+            finished
+            paused
+            startedAt
+            teams {
+                id
+                name
+                side
+                won
+                score
+                money
+                loadoutValue
+                netWorth
+                kills
+                killAssistsReceived
+                killAssistsGiven
+                teamkills
+                teamkillAssistsReceived
+                teamkillAssistsGiven
+                selfkills
+                deaths
+                firstKill
+                structuresDestroyed
+                structuresCaptured
+                killAssistsReceivedFromPlayer {
+                    id
+                    playerId
+                    killAssistsReceived
+                }
+                objectives {
+                    id
+                    type
+                    completedFirst
+                    completionCount
+                }
+                unitKills {
+                    id
+                    unitName
+                    count
+                }
+                players {
+                    id
+                    name
+                    participationStatus
+                    money
+                    loadoutValue
+                    netWorth
+                    kills
+                    killAssistsReceived
+                    killAssistsGiven
+                    deaths
+                    firstKill
+                    structuresDestroyed
+                }
+                multikills {
+                    id
+                    numberOfKills
+                    count
+                }
+            }
+            externalLinks {
+                dataProvider {
+                    name
+                }
+                externalEntity {
+                    id
+                }
+            }
+            map {
+                id
+                name
+                bounds {
+                    min {
+                        x
+                        y
+                    }
+                    max {
+                        x
+                        y
+                    }
+                }
+            }
+            titleVersion {
+                name
+            }
+            clock {
+                id
+                type
+                ticking
+                ticksBackwards
+                currentSeconds
+            }
+            nonPlayerCharacters {
+                id
+                type
+                side
+                alive
+            }
+            structures {
+                id
+                type
+                side
+                teamId
+                currentHealth
+                maxHealth
+                destroyed
+            }
+            duration
+        }
+        title {
+            nameShortened
+        }
+        duration
+    }
+}

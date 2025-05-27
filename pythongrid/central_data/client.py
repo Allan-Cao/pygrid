@@ -177,6 +177,7 @@ class Client(BaseClient):
                 first: $first
                 filter: {hasChildren: {equals: false}}
               ) {
+                totalCount
                 edges {
                   node {
                     id
