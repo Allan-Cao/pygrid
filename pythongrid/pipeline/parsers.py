@@ -113,3 +113,20 @@ def series_from_grid(series_data) -> dict:
         "format": parse_series_format(series_data.node.format.name),
         "external_links": {_.data_provider.name: _.external_entity.id for _ in series_data.node.external_links},
     }
+
+def team_from_grid(team_data):
+    logo_url = None if team_data.logo_url == 'https://cdn.grid.gg/assets/team-logos/generic' else team_data.logo_url
+    associated_ids = {_.data_provider.name: _.external_entity.id for _ in team_data.external_links}
+    associated_ids["GRID"] = team_data.id
+    team_details = {
+        "id": int(team_data.id),
+        "name": team_data.name,
+        "team_code": team_data.name_shortened,
+        "external_ids": associated_ids,
+        "additional_details": {
+            "logo_url": logo_url,
+            "color_primary": team_data.color_primary,
+            "color_secondary": team_data.color_secondary,
+        }
+    }
+    return team_details
