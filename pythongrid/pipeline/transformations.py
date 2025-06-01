@@ -6,6 +6,7 @@ from .constants import (
     DRAFT_TURNS_BLUE,
     DRAFT_TURNS_RED,
     NAME_ID_MAP,
+    OBJECTIVE_NAME_MAP,
 )
 from typing import List
 
@@ -168,3 +169,20 @@ def process_pick_bans(
         )
 
     return pick_bans
+
+def process_team_objectives(series_state_team) -> dict:
+    objectives = {
+        "champion": {
+            "first": series_state_team.first_kill,
+            "kills": series_state_team.kills,
+        },
+    }
+    
+    for grid_name, match_v5_name in OBJECTIVE_NAME_MAP.items():
+        objective = next((obj for obj in series_state_team.objectives if obj.id == grid_name), None)
+        if objective is None:
+            objectives[match_v5_name] = {"first": False, "kills": 0}
+        else:
+            objectives[match_v5_name] = {"first": objective.completed_first, "kills": objective.completion_count}
+
+    return objectives

@@ -1,5 +1,6 @@
 import re
 import arrow
+from .transformations import process_team_objectives
 
 def parse_tournament_name(tournament: str):
     """
@@ -81,7 +82,7 @@ def tournament_from_grid(tournament_data):
         }
 
     tournament_details = {
-        "id": int(tournament_data.id),
+        "id": tournament_data.id,
         "name": tournament_data.name,
         "league": league,
         "year": year,
@@ -89,8 +90,8 @@ def tournament_from_grid(tournament_data):
         "event_type": event_type,
         "start_date": getattr(tournament_data, "start_date", None),
         "end_date": getattr(tournament_data, "end_date", None),
-        "external_ids": external_ids,
         "additional_details": {
+            "external_ids": external_ids,
             "name_shortened": getattr(tournament_data, "name_shortened", None),
             "logo_url": logo_url,
         },
@@ -109,7 +110,7 @@ def series_from_grid(series_data) -> dict:
         "id": series_data.node.id,
         "type": series_data.node.type.name,
         "scheduled_start_time": arrow.get(series_data.node.start_time_scheduled).datetime,
-        "tournament_id": int(series_data.node.tournament.id),
+        "tournament_id": series_data.node.tournament.id,
         "format": parse_series_format(series_data.node.format.name),
         "external_links": {_.data_provider.name: _.external_entity.id for _ in series_data.node.external_links},
     }
@@ -119,14 +120,41 @@ def team_from_grid(team_data):
     associated_ids = {_.data_provider.name: _.external_entity.id for _ in team_data.external_links}
     associated_ids["GRID"] = team_data.id
     team_details = {
-        "id": int(team_data.id),
+        "id": team_data.id,
         "name": team_data.name,
         "team_code": team_data.name_shortened,
-        "external_ids": associated_ids,
-        "additional_details": {
+        "source_data": {
+            "external_ids": associated_ids,
             "logo_url": logo_url,
             "color_primary": team_data.color_primary,
             "color_secondary": team_data.color_secondary,
         }
     }
     return team_details
+
+def parse_duration(duration: str) -> int:
+    m = re.match(r"^PT(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S?)?$", duration)
+    
+    if not m:
+        return 0
+    
+    hours, minutes, seconds = m.groups()
+    
+    total_seconds = 0
+    if hours:
+        total_seconds += float(hours) * 3600
+    if minutes:
+        total_seconds += float(minutes) * 60
+    if seconds:
+        total_seconds += float(seconds)
+    
+    return int(total_seconds)
+
+def team_dto_from_grid(series_state_team):
+    return {
+        "bans": {},
+        "objectives": process_team_objectives(series_state_team),
+        "team_id": 100 if series_state_team.side == "blue" else 200,
+        "win": series_state_team.won,
+        "fk_team_id": series_state_team.id
+    }

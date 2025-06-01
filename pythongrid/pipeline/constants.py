@@ -27,3 +27,12 @@ SHARED_LIVE_STATS_EVENT_KEYS = [
 # Draft pick turns (i.e. the numerical order in which champs are picked by side)
 DRAFT_TURNS_BLUE = [1, 4, 5, 8, 9]
 DRAFT_TURNS_RED = [2, 3, 6, 7, 10]
+
+OBJECTIVE_NAME_MAP = {
+    "slayBaron": "baron",
+    "slayRiftHerald": "riftHerald",
+    "slayVoidGrub": "horde",
+    "slayDragon": "dragon",
+    "destroyTower": "tower",
+    "destroyFortifier": "inhibitor",
+}
