@@ -89,13 +89,13 @@ class GridClient:
             self.central_data_client.get_available_tournaments, "tournaments"
         )
 
-    def get_all_matches(
+    def get_all_series(
         self,
         order: OrderDirection = OrderDirection.DESC,
         **kwargs,
     ) -> List[Any]:
         """
-        Look up played matches.
+        Look up played all played series.
 
         Args:
             **kwargs: Additional parameters for get_series

@@ -14,7 +14,7 @@ __all__ = [
     "tournament_from_grid",
     "series_from_grid",
     "team_from_grid",
-    "DRAFT_TURNS_BLUE",
+    "DRAFT_TURNS_BLUE", 
     "DRAFT_TURNS_RED",
     "SHARED_LIVE_STATS_EVENT_KEYS",
     "NAME_ID_MAP",
