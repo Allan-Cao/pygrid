@@ -66,6 +66,27 @@ class GetSeriesAllSeriesEdgesNodeTournament(BaseModel):
     name: str
     name_shortened: str = Field(alias="nameShortened")
     start_date: Optional[Any] = Field(alias="startDate")
+    external_links: List["GetSeriesAllSeriesEdgesNodeTournamentExternalLinks"] = Field(
+        alias="externalLinks"
+    )
+
+
+class GetSeriesAllSeriesEdgesNodeTournamentExternalLinks(BaseModel):
+    data_provider: "GetSeriesAllSeriesEdgesNodeTournamentExternalLinksDataProvider" = (
+        Field(alias="dataProvider")
+    )
+    external_entity: (
+        "GetSeriesAllSeriesEdgesNodeTournamentExternalLinksExternalEntity"
+    ) = Field(alias="externalEntity")
+
+
+class GetSeriesAllSeriesEdgesNodeTournamentExternalLinksDataProvider(BaseModel):
+    description: Optional[str]
+    name: str
+
+
+class GetSeriesAllSeriesEdgesNodeTournamentExternalLinksExternalEntity(BaseModel):
+    id: str
 
 
 class GetSeriesAllSeriesEdgesNodeTeams(BaseModel):
@@ -114,6 +135,8 @@ GetSeriesAllSeries.model_rebuild()
 GetSeriesAllSeriesEdges.model_rebuild()
 GetSeriesAllSeriesEdgesNode.model_rebuild()
 GetSeriesAllSeriesEdgesNodeExternalLinks.model_rebuild()
+GetSeriesAllSeriesEdgesNodeTournament.model_rebuild()
+GetSeriesAllSeriesEdgesNodeTournamentExternalLinks.model_rebuild()
 GetSeriesAllSeriesEdgesNodeTeams.model_rebuild()
 GetSeriesAllSeriesEdgesNodeTeamsBaseInfo.model_rebuild()
 GetSeriesAllSeriesEdgesNodeTeamsBaseInfoExternalLinks.model_rebuild()

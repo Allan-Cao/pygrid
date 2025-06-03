@@ -91,6 +91,9 @@ from .get_series import (
     GetSeriesAllSeriesEdgesNodeTeamsBaseInfoExternalLinksDataProvider,
     GetSeriesAllSeriesEdgesNodeTeamsBaseInfoExternalLinksExternalEntity,
     GetSeriesAllSeriesEdgesNodeTournament,
+    GetSeriesAllSeriesEdgesNodeTournamentExternalLinks,
+    GetSeriesAllSeriesEdgesNodeTournamentExternalLinksDataProvider,
+    GetSeriesAllSeriesEdgesNodeTournamentExternalLinksExternalEntity,
     GetSeriesAllSeriesPageInfo,
 )
 from .get_series_ids_by_team import (
@@ -298,6 +301,9 @@ __all__ = [
     "GetSeriesAllSeriesEdgesNodeTeamsBaseInfoExternalLinksDataProvider",
     "GetSeriesAllSeriesEdgesNodeTeamsBaseInfoExternalLinksExternalEntity",
     "GetSeriesAllSeriesEdgesNodeTournament",
+    "GetSeriesAllSeriesEdgesNodeTournamentExternalLinks",
+    "GetSeriesAllSeriesEdgesNodeTournamentExternalLinksDataProvider",
+    "GetSeriesAllSeriesEdgesNodeTournamentExternalLinksExternalEntity",
     "GetSeriesAllSeriesPageInfo",
     "GetSeriesIdsByTeam",
     "GetSeriesIdsByTeamAllSeries",

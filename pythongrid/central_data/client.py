@@ -355,6 +355,15 @@ class Client(BaseClient):
                       name
                       nameShortened
                       startDate
+                      externalLinks {
+                        dataProvider {
+                          description
+                          name
+                        }
+                        externalEntity {
+                          id
+                        }
+                      }
                     }
                     teams {
                       baseInfo {

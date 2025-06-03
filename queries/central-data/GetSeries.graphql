@@ -54,6 +54,15 @@ query GetSeries(
                     name
                     nameShortened
                     startDate
+                    externalLinks {
+                        dataProvider {
+                            description
+                            name
+                        }
+                        externalEntity {
+                            id
+                        }
+                    }
                 }
                 teams {
                     baseInfo {
