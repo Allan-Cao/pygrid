@@ -1,89 +1,18 @@
-import httpx
-import orjson
-
+import arrow
+from .parsers import parse_team_objectives, parse_series_format, parse_tournament_name
 from .constants import (
     SHARED_LIVE_STATS_EVENT_KEYS,
     DRAFT_TURNS_BLUE,
     DRAFT_TURNS_RED,
     NAME_ID_MAP,
-    OBJECTIVE_NAME_MAP,
 )
-from typing import List
+from ..series_state.series_state import SeriesStateSeriesStateGamesTeams
+from ..central_data.get_series import GetSeriesAllSeriesEdges
 
 
-def process_live_stats(live_stats_input: str | httpx.Response):
-    """Data transformation from riot live stats file or httpx stream to riot live stats jsonl
-
-    Args:
-        live_stats_input (str | httpx.stream): Input file or httpx Reponse object to download series
-
-    Returns:
-        game_participant_info (dict): game_info event
-        game_end_event (dict): game_end event
-        final_stats_update (dict): The final stats_update event
-        final_champ_select (dict): The final champ_select event which contains the completed draft
-        saved_events (list): All events except for champ_select events
+def game_event_from_grid(event: dict) -> dict:
     """
-    saved_events = []
-    game_participant_info = None
-    game_end_event = None
-    final_stats_update = None
-    final_champ_select = None
-
-    # Not sure of a cleaner way to write this that is also simple.
-    if isinstance(live_stats_input, str):
-        # orjsonl should be used when we need to support compression.
-        with open(live_stats_input, "rb") as input_stream:
-            for line in input_stream:
-                if line:
-                    event = orjson.loads(line)
-                    schema = event["rfc461Schema"]
-                    if schema == "game_info":
-                        game_participant_info = event
-                        event["gameTime"] = (
-                            -1
-                        )  # The game_info event is missing a gameTime which causes future processing to fail.
-                    if schema == "game_end":
-                        game_end_event = event
-                    if schema == "stats_update":
-                        final_stats_update = event
-                    # Only champ select events need to be handeled differently
-                    if schema == "champ_select":
-                        final_champ_select = event
-                    else:
-                        saved_events.append(event)
-    else:
-        with live_stats_input as input_stream:
-            for line in input_stream.iter_lines():
-                if line:
-                    event = orjson.loads(line)
-                    schema = event["rfc461Schema"]
-                    if schema == "game_info":
-                        game_participant_info = event
-                        event["gameTime"] = (
-                            -1
-                        )  # The game_info event is missing a gameTime which causes future processing to fail.
-                    if schema == "game_end":
-                        game_end_event = event
-                    if schema == "stats_update":
-                        final_stats_update = event
-                    # Only champ select events need to be handeled differently
-                    if schema == "champ_select":
-                        final_champ_select = event
-                    else:
-                        saved_events.append(event)
-    return (
-        game_participant_info,
-        game_end_event,
-        final_stats_update,
-        final_champ_select,
-        saved_events,
-    )
-
-
-def process_event(event: dict, game_id: str) -> dict:
-    """
-    Parse a single game event into a game event dictionary by removing shared keys.
+    Removes the shared keys from a Riot LiveStats event and formats the remaining data
 
     Args:
         event: Event data dictionary
@@ -105,21 +34,20 @@ def process_event(event: dict, game_id: str) -> dict:
     }
 
     return {
-        "game_id": game_id,
         "schema": schema,
         "sequence_index": sequence_index,
         "game_time": game_time,
-        "additional_details": event_details,
+        "source_data": event_details,
     }
 
 
-def process_pick_bans(
-    blue_draft: List[dict],
-    red_draft: List[dict],
-    bans: List[dict],
+def draft_event_from_grid(
+    blue_draft: list[dict],
+    red_draft: list[dict],
+    bans: list[dict],
     game_participant_info: dict,
-    game_id: str,
-) -> List[dict]:
+) -> list[dict]:
+
     pick_bans = []
 
     P_MAP = {
@@ -134,7 +62,6 @@ def process_pick_bans(
 
         pick_bans.append(
             {
-                "game_id": game_id,
                 "champion_id": blue,
                 "participant_id": P_MAP[blue],
                 "is_pick": True,
@@ -145,7 +72,6 @@ def process_pick_bans(
         )
         pick_bans.append(
             {
-                "game_id": game_id,
                 "champion_id": red,
                 "participant_id": P_MAP[red],
                 "is_pick": True,
@@ -158,7 +84,6 @@ def process_pick_bans(
     for idx, ban in enumerate(bans):
         pick_bans.append(
             {
-                "game_id": game_id,
                 "champion_id": ban["championID"],
                 "participant_id": None,
                 "is_pick": False,
@@ -170,19 +95,85 @@ def process_pick_bans(
 
     return pick_bans
 
-def process_team_objectives(series_state_team) -> dict:
-    objectives = {
-        "champion": {
-            "first": series_state_team.first_kill,
-            "kills": series_state_team.kills,
+
+def team_dto_from_grid(series_state_team: SeriesStateSeriesStateGamesTeams) -> dict:
+    return {
+        "bans": {},
+        "objectives": parse_team_objectives(series_state_team),
+        "team_id": 100 if series_state_team.side == "blue" else 200,
+        "win": series_state_team.won,
+        "fk_team_id": series_state_team.id,
+    }
+
+
+def series_from_grid(series_data: GetSeriesAllSeriesEdges) -> dict:
+    return {
+        "id": series_data.node.id,
+        "type": series_data.node.type.name,
+        "scheduled_start_time": arrow.get(
+            series_data.node.start_time_scheduled
+        ).datetime,
+        "tournament_id": series_data.node.tournament.id,
+        "format": parse_series_format(series_data.node.format.name),
+        "external_links": {
+            _.data_provider.name: _.external_entity.id
+            for _ in series_data.node.external_links
         },
     }
-    
-    for grid_name, match_v5_name in OBJECTIVE_NAME_MAP.items():
-        objective = next((obj for obj in series_state_team.objectives if obj.id == grid_name), None)
-        if objective is None:
-            objectives[match_v5_name] = {"first": False, "kills": 0}
-        else:
-            objectives[match_v5_name] = {"first": objective.completed_first, "kills": objective.completion_count}
 
-    return objectives
+
+def team_from_grid(team_data) -> dict:
+    logo_url = (
+        None
+        if team_data.logo_url == "https://cdn.grid.gg/assets/team-logos/generic"
+        else team_data.logo_url
+    )
+    associated_ids = {
+        _.data_provider.name: _.external_entity.id for _ in team_data.external_links
+    }
+    associated_ids["GRID"] = team_data.id
+    team_details = {
+        "id": team_data.id,
+        "name": team_data.name,
+        "team_code": team_data.name_shortened,
+        "source_data": {
+            "external_ids": associated_ids,
+            "logo_url": logo_url,
+            "color_primary": team_data.color_primary,
+            "color_secondary": team_data.color_secondary,
+        },
+    }
+    return team_details
+
+
+def tournament_from_grid(tournament_data) -> dict:
+    logo_url = (
+        None
+        if tournament_data.logo_url
+        == "https://cdn.grid.gg/assets/tournament-logos/generic"
+        else tournament_data.logo_url
+    )
+    league, year, split, event_type = parse_tournament_name(tournament_data.name)
+
+    external_ids = {
+        _.data_provider.name: _.external_entity.id
+        for _ in tournament_data.external_links
+    }
+
+    tournament_details = {
+        "id": tournament_data.id,
+        "name": tournament_data.name,
+        "league": league,
+        "year": year,
+        "split": split,
+        "event_type": event_type,
+        "start_date": tournament_data.start_date,
+        "end_date": tournament_data.end_date,
+        "source_data": {
+            "external_ids": external_ids,
+            "name_shortened": tournament_data.name_shortened,
+            "logo_url": logo_url,
+        },
+    }
+
+    return tournament_details

@@ -1,17 +1,21 @@
 import re
-import arrow
-from .transformations import process_team_objectives
+from .constants import OBJECTIVE_NAME_MAP
+from ..series_state.series_state import SeriesStateSeriesStateGamesTeams
 
-def parse_tournament_name(tournament: str):
-    """
-    Parse tournament names with formats:
+
+def parse_tournament_name(
+    tournament_name: str,
+) -> tuple[str | None, str | None, str | None, str | None]:
+    """Parse tournament names with formats:
         league year split
         league year
         league - split year (event_type: details)
+
     Args:
-        tournament: Tournament name string
+        tournament_name (str): Full tournament name string
+
     Returns:
-        Tuple containing (league, year, split, event_type)
+        tuple[str | None, str| None, str | None, str | None]: league year split event_type. None if parsing failed
     """
     league = None
     year = None
@@ -19,13 +23,13 @@ def parse_tournament_name(tournament: str):
     event_type = None
 
     # Handle bracketed event type
-    if "(" in tournament:
-        main_part = tournament.split("(")[0].strip()
-        event_part = re.search(r"\((.*?):", tournament)
+    if "(" in tournament_name:
+        main_part = tournament_name.split("(")[0].strip()
+        event_part = re.search(r"\((.*?):", tournament_name)
         if event_part:
             event_type = event_part.group(1).strip()
     else:
-        main_part = tournament
+        main_part = tournament_name
 
     # Extract year
     year_match = re.search(r"20\d{2}", main_part)
@@ -50,96 +54,43 @@ def parse_tournament_name(tournament: str):
             if len(parts) > 1:
                 split = parts[1].strip() or None
 
-    return (league, year, split, event_type)
+    return league, year, split, event_type
 
-
-def tournament_from_grid(tournament_data):
-    """
-    Convert GRID tournament data to dictionary format.
-
-    Args:
-        tournament_data: Tournament data from GRID API
-
-    Returns:
-        Dictionary with tournament details
-    """
-    logo_url = None
-    if hasattr(tournament_data, "logo_url"):
-        logo_url = (
-            None
-            if tournament_data.logo_url
-            == "https://cdn.grid.gg/assets/tournament-logos/generic"
-            else tournament_data.logo_url
-        )
-
-    league, year, split, event_type = parse_tournament_name(tournament_data.name)
-
-    external_ids = {}
-    if hasattr(tournament_data, "external_links"):
-        external_ids = {
-            _.data_provider.name: _.external_entity.id
-            for _ in tournament_data.external_links
-        }
-
-    tournament_details = {
-        "id": tournament_data.id,
-        "name": tournament_data.name,
-        "league": league,
-        "year": year,
-        "split": split,
-        "event_type": event_type,
-        "start_date": getattr(tournament_data, "start_date", None),
-        "end_date": getattr(tournament_data, "end_date", None),
-        "additional_details": {
-            "external_ids": external_ids,
-            "name_shortened": getattr(tournament_data, "name_shortened", None),
-            "logo_url": logo_url,
-        },
-    }
-
-    return tournament_details
 
 def parse_series_format(series_format: str) -> int | None:
+    """Parse the "best-of-n" series format.
+
+    Args:
+        series_format (str): A string containing best-of-
+
+    Returns:
+        int | None: n, repreenting n games in a best-of-n series. None if best-of- is not found
+    """
     name_split = series_format.split("best-of-")
     if len(name_split) != 2:
         return None
     return int(name_split[1])
-        
-def series_from_grid(series_data) -> dict:
-    return {
-        "id": series_data.node.id,
-        "type": series_data.node.type.name,
-        "scheduled_start_time": arrow.get(series_data.node.start_time_scheduled).datetime,
-        "tournament_id": series_data.node.tournament.id,
-        "format": parse_series_format(series_data.node.format.name),
-        "external_links": {_.data_provider.name: _.external_entity.id for _ in series_data.node.external_links},
-    }
 
-def team_from_grid(team_data):
-    logo_url = None if team_data.logo_url == 'https://cdn.grid.gg/assets/team-logos/generic' else team_data.logo_url
-    associated_ids = {_.data_provider.name: _.external_entity.id for _ in team_data.external_links}
-    associated_ids["GRID"] = team_data.id
-    team_details = {
-        "id": team_data.id,
-        "name": team_data.name,
-        "team_code": team_data.name_shortened,
-        "source_data": {
-            "external_ids": associated_ids,
-            "logo_url": logo_url,
-            "color_primary": team_data.color_primary,
-            "color_secondary": team_data.color_secondary,
-        }
-    }
-    return team_details
 
 def parse_duration(duration: str) -> int:
-    m = re.match(r"^PT(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S?)?$", duration)
-    
+    """Parses the ISO 8601 formatted duration string into seconds
+
+    Args:
+        duration (str): ISO 8601 formatted string (supporting the PTHMS duration designators)
+
+    Returns:
+        int: The equivalent number of seconds
+    """
+    m = re.match(
+        r"^PT(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S?)?$",
+        duration,
+    )
+
     if not m:
         return 0
-    
+
     hours, minutes, seconds = m.groups()
-    
+
     total_seconds = 0
     if hours:
         total_seconds += float(hours) * 3600
@@ -147,14 +98,36 @@ def parse_duration(duration: str) -> int:
         total_seconds += float(minutes) * 60
     if seconds:
         total_seconds += float(seconds)
-    
+
     return int(total_seconds)
 
-def team_dto_from_grid(series_state_team):
-    return {
-        "bans": {},
-        "objectives": process_team_objectives(series_state_team),
-        "team_id": 100 if series_state_team.side == "blue" else 200,
-        "win": series_state_team.won,
-        "fk_team_id": series_state_team.id
+
+def parse_team_objectives(series_state_team: SeriesStateSeriesStateGamesTeams) -> dict:
+    """Parses the objectives taken from a team object in a series_state returned from the API
+
+    Args:
+        series_state_team (SeriesStateSeriesStateGamesTeams): Team state object from a Series State
+
+    Returns:
+        dict: A dictionary of objectives taken (kills / first) matching the format found in the match-v5 API
+    """
+    objectives = {
+        "champion": {
+            "first": series_state_team.first_kill,
+            "kills": series_state_team.kills,
+        },
     }
+
+    for grid_name, match_v5_name in OBJECTIVE_NAME_MAP.items():
+        objective = next(
+            (obj for obj in series_state_team.objectives if obj.id == grid_name), None
+        )
+        if objective is None:
+            objectives[match_v5_name] = {"first": False, "kills": 0}
+        else:
+            objectives[match_v5_name] = {
+                "first": objective.completed_first,
+                "kills": objective.completion_count,
+            }
+
+    return objectives

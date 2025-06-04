@@ -1,8 +1,7 @@
 import httpx
-from typing import Dict, Any
 
 
-def fetch_champion_data() -> Dict[str, Any]:
+def fetch_champion_data() -> dict:
     """
     Fetch the latest champion data from the LoL Data Dragon.
 
@@ -23,7 +22,7 @@ def fetch_champion_data() -> Dict[str, Any]:
     return champion_response.json()
 
 
-def get_champion_mappings() -> tuple[Dict[int, str], Dict[str, int]]:
+def get_champion_mappings() -> tuple[dict[int, str], dict[str, int]]:
     """
     Create mappings between champion IDs and names.
 
