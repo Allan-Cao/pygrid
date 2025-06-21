@@ -1,4 +1,4 @@
-import arrow
+import pendulum
 from .parsers import parse_team_objectives, parse_series_format, parse_tournament_name
 from .constants import (
     SHARED_LIVE_STATS_EVENT_KEYS,
@@ -110,9 +110,9 @@ def series_from_grid(series_data: GetSeriesAllSeriesEdges) -> dict:
     return {
         "id": series_data.node.id,
         "type": series_data.node.type.name,
-        "scheduled_start_time": arrow.get(
+        "scheduled_start_time": pendulum.parse(
             series_data.node.start_time_scheduled
-        ).datetime,
+        ),
         "tournament_id": series_data.node.tournament.id,
         "format": parse_series_format(series_data.node.format.name),
         "external_links": {
