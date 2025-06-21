@@ -1,7 +1,7 @@
 # pygrid: Python client for the GRID esports API
 
-[![Latest Version](https://img.shields.io/pypi/v/grid-lol-client?label=latest)][PyPI Releases]
-[![Python Versions](https://img.shields.io/pypi/pyversions/grid-lol-client)][PyPI]
+[![Latest Version](https://img.shields.io/pypi/v/grid-lol-client?label=latest)]
+[![Python Versions](https://img.shields.io/pypi/pyversions/grid-lol-client)]
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 pygrid simplifies the usage of the GRID esports API by managing all of the hard parts for you. A collection of data pipeline functions that support processing of game data are also provided with this library.
