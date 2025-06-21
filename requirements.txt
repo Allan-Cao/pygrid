@@ -1,6 +1,0 @@
-httpx
-orjson
-arrow
-
-ariadne-codegen
-pytest
