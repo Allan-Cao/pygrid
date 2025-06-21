@@ -1,6 +1,6 @@
 [project]
-name = "pythongrid"
-version = "0.1.4"
+name = "grid-lol-client"
+version = "0.2.0"
 description = "Python client for the GRID Esports API and ETL helper functions for game data processing"
 authors = [{ name = "Allan Cao", email = "allan@allancao.ca" }]
 license = { text = "MIT" }
@@ -15,6 +15,7 @@ dependencies = [
 ]
 
 [tool.poetry]
+packages = [{ include = "pygrid" }]
 
 [tool.poetry.group.dev.dependencies]
 ariadne-codegen = "^0.14.0"

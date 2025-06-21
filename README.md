@@ -1,11 +1,11 @@
-# pythongrid
+# pygrid
 Simple Python based client for the GRID esports API with a collection of data pipeline functions to support processing of game data.
 
 ## Features / TODO
 - [x] Rate limited access to GRID GraphQL endpoints
 - [x] Simple client class to access commonly used queries.
 - [x] Automatic pagination for queries that require multiple API calls
-- [x] Minimal external dependencies; only httpx, arrow, pydantic and orjson for the client and ariadne-codegen for GraphQL API code generation.
+- [x] Minimal external dependencies; only httpx, pendulum, pydantic and orjson for the client and ariadne-codegen for GraphQL API code generation.
 - [ ] Release my scripts that parse returned data files ideally in a database agnositic format. As I don't expect this library to become that popular, my main focus will be on compatability with my own [ATG](https://github.com/Allan-Cao/ATG) database format.
 - [ ] Complete unit testing coverage of all parsing functions.
 - [ ] Release on PyPi for easier installation
@@ -13,7 +13,7 @@ Simple Python based client for the GRID esports API with a collection of data pi
 ## Installation
 
 ```bash
-pip install git+https://github.com/Allan-Cao/pythongrid
+pip install git+https://github.com/Allan-Cao/pygrid
 ```
 
 ## Example Usage
@@ -22,14 +22,14 @@ Client API key setup
 
 ```python
 import os
-from pythongrid.client import GridClient
+from pygrid.client import GridClient
 
 client = GridClient(os.environ["GRID_API_KEY"])
 ```
 
 Lookup series information with filtering
 ```python
-from pythongrid import OrderDirection, SeriesType
+from pygrid import OrderDirection, SeriesType
 gte = "2025-01-01T00:00:00.000Z"
 tournaments = ["825437", "825439", "825438", "825440", "825441"]
 available_series = client.get_all_matches(
