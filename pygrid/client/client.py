@@ -20,7 +20,7 @@ class GridClient:
             api_key: GRID API key
         """
         self.api_key = api_key
-        self.http_client = httpx.Client(headers={"x-api-key": api_key})
+        self.http_client = httpx.Client(headers={"x-api-key": api_key}, follow_redirects=True)
         self.central_data_client = CentralDataClient(
             http_client=self.http_client,
             url="https://api.grid.gg/central-data/graphql",
