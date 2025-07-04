@@ -138,6 +138,7 @@ class SeriesStateSeriesStateGamesTeamsPlayers(BaseModel):
         "GamePlayerStateDefault",
         "GamePlayerStateDota",
         "GamePlayerStateLol",
+        "GamePlayerStateMlbb",
         "GamePlayerStatePubg",
         "GamePlayerStateR6",
         "GamePlayerStateValorant",

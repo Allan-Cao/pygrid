@@ -34,6 +34,7 @@ class ContentCatalogEntityFilter(BaseModel):
     name: Optional["StringFilter"] = None
     private: Optional["BooleanFilter"] = None
     title: Optional["ContentCatalogEntityTitleFilter"] = None
+    updated_at: Optional["DateTimeFilter"] = Field(alias="updatedAt", default=None)
 
 
 class ContentCatalogEntityTitleFilter(BaseModel):
@@ -292,6 +293,7 @@ class NullableIdFilter(BaseModel):
 class OrganizationFilter(BaseModel):
     name: Optional["StringFilter"] = None
     private: Optional["BooleanFilter"] = None
+    updated_at: Optional["DateTimeFilter"] = Field(alias="updatedAt", default=None)
 
 
 class PlayerFilter(BaseModel):
@@ -306,6 +308,7 @@ class PlayerFilter(BaseModel):
     )
     title_id: Optional[str] = Field(alias="titleId", default=None)
     types: Optional[List[PlayerType]] = None
+    updated_at: Optional["DateTimeFilter"] = Field(alias="updatedAt", default=None)
 
 
 class PlayerPlayerRoleFilter(BaseModel):
@@ -347,6 +350,7 @@ class SeriesFilter(BaseModel):
     tournament_ids: Optional["IdFilter"] = Field(alias="tournamentIds", default=None)
     type: Optional[SeriesType] = None
     types: Optional[List[SeriesType]] = None
+    updated_at: Optional["DateTimeFilter"] = Field(alias="updatedAt", default=None)
 
 
 class SeriesLiveFilter(BaseModel):
@@ -388,6 +392,7 @@ class TeamFilter(BaseModel):
     organization_id: Optional[str] = Field(alias="organizationId", default=None)
     private: Optional["BooleanFilter"] = None
     title_id: Optional[str] = Field(alias="titleId", default=None)
+    updated_at: Optional["DateTimeFilter"] = Field(alias="updatedAt", default=None)
 
 
 class TitleFilter(BaseModel):
@@ -406,6 +411,7 @@ class TournamentFilter(BaseModel):
     start_date: Optional["NullableDateFilter"] = Field(alias="startDate", default=None)
     title: Optional["TournamentTitleFilter"] = None
     title_id: Optional[str] = Field(alias="titleId", default=None)
+    updated_at: Optional["DateTimeFilter"] = Field(alias="updatedAt", default=None)
     venue_type: Optional[List[TournamentVenueType]] = Field(
         alias="venueType", default=None
     )

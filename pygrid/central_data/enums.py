@@ -55,6 +55,7 @@ class PlayerType(str, Enum):
 class SeriesOrderBy(str, Enum):
     ID = "ID"
     StartTimeScheduled = "StartTimeScheduled"
+    UpdatedAt = "UpdatedAt"
 
 
 class SeriesType(str, Enum):
