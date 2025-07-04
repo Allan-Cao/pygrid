@@ -42,9 +42,9 @@ def process_live_stats(live_stats_input: BufferedReader | Response):
                     game_end_event = event
                 if schema == "stats_update":
                     final_stats_update = event
-                # We want the final champ select event before trading is enabled. We determine this by the gameState.
-                # POST_CHAMP_SELECT have information on the trading sequence
-                if schema == "champ_select" and event["gameState"] == "CHAMP_SELECT":
+                # We want the final champ select event before trading is enabled.
+                # The most consistant way to select this seems to be the first POST_CHAMP_SELECT
+                if final_champ_select is None and schema == "champ_select" and event["gameState"] == "POST_CHAMP_SELECT":
                     final_champ_select = event
                 else:
                     saved_events.append(event)
