@@ -34,6 +34,7 @@ def process_live_stats(live_stats_input: BufferedReader | Response):
             if line:
                 event = orjson.loads(line)
                 schema = event["rfc461Schema"]
+                ### Extracted Events
                 if schema == "game_info":
                     game_participant_info = event
                     # The game_info event is missing a gameTime which causes future processing to fail.
@@ -46,7 +47,8 @@ def process_live_stats(live_stats_input: BufferedReader | Response):
                 # The most consistant way to select this seems to be the first POST_CHAMP_SELECT
                 if final_champ_select is None and schema == "champ_select" and event["gameState"] == "POST_CHAMP_SELECT":
                     final_champ_select = event
-                else:
+                ### Saved Events (anything that's not a champ_select event)
+                if schema != "champ_select":
                     saved_events.append(event)
 
     return (
