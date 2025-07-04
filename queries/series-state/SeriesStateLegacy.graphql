@@ -1,0 +1,128 @@
+query SeriesStateLegacy(
+    $seriesID: ID!
+    $gameFinished: Boolean
+    $gameStarted: Boolean
+) {
+    seriesState(id: $seriesID) {
+        version
+        id
+        format
+        started
+        finished
+        valid
+        updatedAt
+        startedAt
+        teams {
+            id
+            name
+            score
+            won
+        }
+        games(filter: { finished: $gameFinished, started: $gameStarted }) {
+            id
+            sequenceNumber
+            started
+            finished
+            paused
+            teams {
+                id
+                name
+                side
+                won
+                score
+                money
+                loadoutValue
+                netWorth
+                kills
+                killAssistsReceived
+                killAssistsGiven
+                teamkills
+                teamkillAssistsReceived
+                teamkillAssistsGiven
+                selfkills
+                deaths
+                structuresDestroyed
+                structuresCaptured
+                killAssistsReceivedFromPlayer {
+                    id
+                    playerId
+                    killAssistsReceived
+                }
+                objectives {
+                    id
+                    type
+                    completionCount
+                }
+                unitKills {
+                    id
+                    unitName
+                    count
+                }
+                players {
+                    id
+                    name
+                    participationStatus
+                    money
+                    loadoutValue
+                    netWorth
+                    kills
+                    killAssistsReceived
+                    killAssistsGiven
+                    deaths
+                    structuresDestroyed
+                }
+                multikills {
+                    id
+                    numberOfKills
+                    count
+                }
+            }
+            externalLinks {
+                dataProvider {
+                    name
+                }
+                externalEntity {
+                    id
+                }
+            }
+            map {
+                name
+                bounds {
+                    min {
+                        x
+                        y
+                    }
+                    max {
+                        x
+                        y
+                    }
+                }
+            }
+            clock {
+                id
+                type
+                ticking
+                ticksBackwards
+                currentSeconds
+            }
+            nonPlayerCharacters {
+                id
+                type
+                side
+                alive
+            }
+            structures {
+                id
+                type
+                side
+                teamId
+                currentHealth
+                maxHealth
+                destroyed
+            }
+        }
+        title {
+            nameShortened
+        }
+    }
+}

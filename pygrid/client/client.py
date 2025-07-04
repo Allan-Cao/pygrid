@@ -7,6 +7,7 @@ from .extended_clients import (
     ExtendedCentralDataClient as CentralDataClient,
     ExtendedSeriesStateClient as SeriesStateClient,
 )
+from ..series_state.exceptions import GraphQLClientGraphQLMultiError, GraphQLClientGraphQLError
 
 
 class GridClient:
@@ -118,6 +119,8 @@ class GridClient:
             - Objective stats
             - Game drafts determined by GRID
 
+        If a GraphQL "Requested field is only available from version" error occurs, fall back to a legacy version of the query
+
         Args:
             series_id: Series ID
             game_finished: Optional boolean to filter by games that have a winner
@@ -126,8 +129,14 @@ class GridClient:
         Returns:
             Series draft summary
         """
-        result = self.series_state_client.series_state(series_id, game_finished=game_finished, game_started=game_started)
+        try:
+            result = self.series_state_client.series_state(series_id, game_finished=game_finished, game_started=game_started)
+        except (GraphQLClientGraphQLMultiError, GraphQLClientGraphQLError):
+            result = self.series_state_client.series_state_legacy(series_id, game_finished=game_finished, game_started=game_started)
+        except Exception as e:
+            raise e
         return result
+
 
     def get_series_games(self, series_id: str) -> Any:
         """

@@ -7,6 +7,7 @@ from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
 from .series_games import SeriesGames
 from .series_state import SeriesState
+from .series_state_legacy import SeriesStateLegacy
 
 
 def gql(q: str) -> str:
@@ -195,3 +196,155 @@ class Client(BaseClient):
         )
         data = self.get_data(response)
         return SeriesState.model_validate(data)
+
+    def series_state_legacy(
+        self,
+        series_id: str,
+        game_finished: Union[Optional[bool], UnsetType] = UNSET,
+        game_started: Union[Optional[bool], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> SeriesStateLegacy:
+        query = gql(
+            """
+            query SeriesStateLegacy($seriesID: ID!, $gameFinished: Boolean, $gameStarted: Boolean) {
+              seriesState(id: $seriesID) {
+                version
+                id
+                format
+                started
+                finished
+                valid
+                updatedAt
+                startedAt
+                teams {
+                  __typename
+                  id
+                  name
+                  score
+                  won
+                }
+                games(filter: {finished: $gameFinished, started: $gameStarted}) {
+                  id
+                  sequenceNumber
+                  started
+                  finished
+                  paused
+                  teams {
+                    __typename
+                    id
+                    name
+                    side
+                    won
+                    score
+                    money
+                    loadoutValue
+                    netWorth
+                    kills
+                    killAssistsReceived
+                    killAssistsGiven
+                    teamkills
+                    teamkillAssistsReceived
+                    teamkillAssistsGiven
+                    selfkills
+                    deaths
+                    structuresDestroyed
+                    structuresCaptured
+                    killAssistsReceivedFromPlayer {
+                      id
+                      playerId
+                      killAssistsReceived
+                    }
+                    objectives {
+                      id
+                      type
+                      completionCount
+                    }
+                    unitKills {
+                      id
+                      unitName
+                      count
+                    }
+                    players {
+                      __typename
+                      id
+                      name
+                      participationStatus
+                      money
+                      loadoutValue
+                      netWorth
+                      kills
+                      killAssistsReceived
+                      killAssistsGiven
+                      deaths
+                      structuresDestroyed
+                    }
+                    multikills {
+                      id
+                      numberOfKills
+                      count
+                    }
+                  }
+                  externalLinks {
+                    dataProvider {
+                      name
+                    }
+                    externalEntity {
+                      id
+                    }
+                  }
+                  map {
+                    name
+                    bounds {
+                      min {
+                        x
+                        y
+                      }
+                      max {
+                        x
+                        y
+                      }
+                    }
+                  }
+                  clock {
+                    id
+                    type
+                    ticking
+                    ticksBackwards
+                    currentSeconds
+                  }
+                  nonPlayerCharacters {
+                    id
+                    type
+                    side
+                    alive
+                  }
+                  structures {
+                    id
+                    type
+                    side
+                    teamId
+                    currentHealth
+                    maxHealth
+                    destroyed
+                  }
+                }
+                title {
+                  nameShortened
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "seriesID": series_id,
+            "gameFinished": game_finished,
+            "gameStarted": game_started,
+        }
+        response = self.execute(
+            query=query,
+            operation_name="SeriesStateLegacy",
+            variables=variables,
+            **kwargs
+        )
+        data = self.get_data(response)
+        return SeriesStateLegacy.model_validate(data)
