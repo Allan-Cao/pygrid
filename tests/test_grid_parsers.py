@@ -1,5 +1,5 @@
 import pytest
-from pythongrid.pipeline import parse_tournament_name, parse_series_format
+from pygrid.pipeline import parse_tournament_name, parse_series_format
 
 
 @pytest.mark.parametrize(
