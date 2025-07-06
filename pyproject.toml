@@ -1,6 +1,6 @@
 [project]
 name = "grid-lol-client"
-version = "0.2.5"
+version = "0.2.6"
 description = "Python client for the GRID Esports API and ETL helper functions for game data processing"
 authors = [{ name = "Allan Cao", email = "allan@allancao.ca" }]
 license = { text = "MIT" }

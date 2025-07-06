@@ -113,7 +113,7 @@ def parse_team_objectives(series_state_team: SeriesStateSeriesStateGamesTeams) -
     """
     objectives = {
         "champion": {
-            "first": series_state_team.first_kill,
+            "first": getattr(series_state_team, "first_kill"),
             "kills": series_state_team.kills,
         },
     }
@@ -126,7 +126,7 @@ def parse_team_objectives(series_state_team: SeriesStateSeriesStateGamesTeams) -
             objectives[match_v5_name] = {"first": False, "kills": 0}
         else:
             objectives[match_v5_name] = {
-                "first": objective.completed_first,
+                "first": getattr(objective, "completed_first"),
                 "kills": objective.completion_count,
             }
 
