@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, Union
 
 from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
+from .series_draft_state import SeriesDraftState
 from .series_games import SeriesGames
 from .series_state import SeriesState
 from .series_state_legacy import SeriesStateLegacy
@@ -15,6 +16,76 @@ def gql(q: str) -> str:
 
 
 class Client(BaseClient):
+    def series_draft_state(self, series_id: str, **kwargs: Any) -> SeriesDraftState:
+        query = gql(
+            """
+            query SeriesDraftState($seriesID: ID!) {
+              seriesState(id: $seriesID) {
+                id
+                format
+                started
+                finished
+                valid
+                games {
+                  id
+                  started
+                  teams {
+                    __typename
+                    id
+                    name
+                    side
+                    won
+                    players {
+                      __typename
+                      id
+                      name
+                      character {
+                        id
+                        name
+                      }
+                      roles {
+                        id
+                      }
+                      participationStatus
+                    }
+                  }
+                  draftActions {
+                    id
+                    type
+                    sequenceNumber
+                    drafter {
+                      id
+                      type
+                    }
+                    draftable {
+                      id
+                      type
+                      name
+                    }
+                  }
+                  finished
+                  paused
+                  startedAt
+                  sequenceNumber
+                  titleVersion {
+                    name
+                  }
+                  type
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"seriesID": series_id}
+        response = self.execute(
+            query=query,
+            operation_name="SeriesDraftState",
+            variables=variables,
+            **kwargs
+        )
+        data = self.get_data(response)
+        return SeriesDraftState.model_validate(data)
+
     def series_games(self, series_id: str, **kwargs: Any) -> SeriesGames:
         query = gql(
             """

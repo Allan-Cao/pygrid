@@ -151,6 +151,19 @@ class GridClient:
         result = self.series_state_client.series_games(series_id)
         return result
 
+    def get_series_draft_state(self, series_id: str) -> Any:
+        """
+        Fetch the draft state (i.e. draft actions) and picked champions for all games in a series
+
+        Args:
+            series_id: Series ID
+
+        Returns:
+            Series Draft / Game details
+        """
+
+        return self.series_state_client.series_draft_state(series_id)
+
     def get_team_by_team_code(self, team_code: str) -> str | None:
         """
         Look up team ID by team code.
